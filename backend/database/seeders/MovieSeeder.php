@@ -62,13 +62,14 @@ class MovieSeeder extends Seeder
     private function downloadPoster(string $title): string
     {
         $slug = Str::slug($title);
-        $path = "movies/{$slug}.jpg";
+        $path = "movies/{$slug}.png";
 
         if (Storage::disk('public')->exists($path)) {
             return $path;
         }
 
-        $response = Http::timeout(20)->get("https://picsum.photos/seed/{$slug}/600/900.jpg");
+        $posterText = urlencode($title);
+        $response = Http::timeout(20)->get("https://dummyimage.com/600x900/e2e8f0/334155.png&text={$posterText}");
         $response->throw();
 
         Storage::disk('public')->put($path, $response->body());
