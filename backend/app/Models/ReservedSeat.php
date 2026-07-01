@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Builders\ReservedSeatBuilder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -24,6 +25,16 @@ class ReservedSeat extends Model
             'reserved_at' => 'datetime',
             'price' => 'decimal:2',
         ];
+    }
+
+    public function newEloquentBuilder($query): ReservedSeatBuilder
+    {
+        return new ReservedSeatBuilder($query);
+    }
+
+    public function loadApiRelations(): self
+    {
+        return $this->load(['seat.hall', 'showtime.movie', 'showtime.hall']);
     }
 
     public function seat(): BelongsTo

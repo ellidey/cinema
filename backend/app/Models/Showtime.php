@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Builders\ShowtimeBuilder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -19,6 +20,11 @@ class Showtime extends Model
         return [
             'starts_at' => 'datetime',
         ];
+    }
+
+    public function newEloquentBuilder($query): ShowtimeBuilder
+    {
+        return new ShowtimeBuilder($query);
     }
 
     public function movie(): BelongsTo

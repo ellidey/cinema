@@ -3,6 +3,8 @@ services:
     build:
       context: .
       dockerfile: docker/nginx/Dockerfile
+    volumes:
+      - ./backend/storage/app/public:/var/www/storage/app/public:ro
     ports:
       - "80:80"
     depends_on:

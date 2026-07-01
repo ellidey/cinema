@@ -1,41 +1,47 @@
 import { Link } from 'react-router-dom'
-import { useSystemHealth } from '../../api/systemHealth'
+import { useEffect, useState } from 'react'
+import { getMovies, type Movie } from '../../api/cinema'
 import { Page } from '../../components/Page'
-import { StatusGrid } from '../../components/StatusGrid'
 
 export function HomePage() {
-  const apiHealth = useSystemHealth()
+  const [movies, setMovies] = useState<Movie[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    getMovies()
+      .then(setMovies)
+      .finally(() => setIsLoading(false))
+  }, [])
 
   return (
     <Page>
       <section className="home-hero">
-        <p className="text-label">Cinema tickets</p>
-        <h1>Laravel API + React client</h1>
-        <p>
-          Базовая структура для тестового задания по бронированию билетов.
-          React отдается nginx на <code>localhost</code>, Laravel отвечает через
-          <code>/api</code>.
+        <p className="text-label">
+          <i className="ri-movie-2-line" aria-hidden="true" />
+          Cinema tickets
         </p>
+        <h1>Фильмы</h1>
       </section>
 
-      <StatusGrid
-        items={[
-          {
-            label: 'Frontend',
-            value: 'React + TypeScript',
-          },
-          {
-            label: 'Backend',
-            value: apiHealth.data
-              ? `${apiHealth.data.service}: ${apiHealth.data.status}`
-              : apiHealth.error ?? 'Проверка...',
-          },
-          {
-            label: 'Router',
-            value: <Link to="/showtimes">Открыть маршрут сеансов</Link>,
-          },
-        ]}
-      />
+      {isLoading ? (
+        <p className="loading-text">Загрузка...</p>
+      ) : (
+        <section className="movie-grid">
+          {movies.map((movie) => (
+            <Link className="movie-card" to={`/movies/${movie.id}`} key={movie.id}>
+              <img src={movie.image_url ?? ''} alt="" />
+              <div>
+                <p className="text-label">
+                  <i className="ri-time-line" aria-hidden="true" />
+                  {movie.duration} мин.
+                </p>
+                <h2>{movie.title}</h2>
+                <p>{movie.description}</p>
+              </div>
+            </Link>
+          ))}
+        </section>
+      )}
     </Page>
   )
 }

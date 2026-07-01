@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Builders\SeatBuilder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -21,6 +22,11 @@ class Seat extends Model
         return [
             'price' => 'decimal:2',
         ];
+    }
+
+    public function newEloquentBuilder($query): SeatBuilder
+    {
+        return new SeatBuilder($query);
     }
 
     public function hall(): BelongsTo
