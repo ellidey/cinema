@@ -1,0 +1,31 @@
+.status-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1px;
+  margin-top: 40px;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: var(--color-border);
+}
+
+.status-grid__item {
+  display: grid;
+  gap: 8px;
+  min-height: 92px;
+  padding: 20px;
+  background: var(--color-surface);
+}
+
+.status-grid strong,
+.status-grid a {
+  color: var(--color-text-strong);
+  font-size: 16px;
+  font-weight: 700;
+}
+
+@media (max-width: 720px) {
+  .status-grid {
+    grid-template-columns: 1fr;
+  }
+}

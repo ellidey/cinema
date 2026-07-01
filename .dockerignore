@@ -1,0 +1,6 @@
+.git
+.idea
+.npm-cache
+backend/vendor
+backend/node_modules
+frontend/node_modules
