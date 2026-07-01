@@ -4,7 +4,6 @@ namespace Database\Seeders;
 
 use App\Models\Movie;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
@@ -62,18 +61,33 @@ class MovieSeeder extends Seeder
     private function downloadPoster(string $title): string
     {
         $slug = Str::slug($title);
-        $path = "movies/{$slug}.png";
+        $path = "movies/{$slug}.svg";
 
         if (Storage::disk('public')->exists($path)) {
             return $path;
         }
 
-        $posterText = urlencode($title);
-        $response = Http::timeout(20)->get("https://dummyimage.com/600x900/e2e8f0/334155.png&text={$posterText}");
-        $response->throw();
-
-        Storage::disk('public')->put($path, $response->body());
+        Storage::disk('public')->put($path, $this->makePosterSvg($title));
 
         return $path;
+    }
+
+    private function makePosterSvg(string $title): string
+    {
+        $escapedTitle = htmlspecialchars($title, ENT_QUOTES, 'UTF-8');
+
+        return <<<SVG
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="900" viewBox="0 0 600 900" role="img" aria-label="{$escapedTitle}">
+  <rect width="600" height="900" fill="#e2e8f0"/>
+  <rect x="48" y="48" width="504" height="804" rx="24" fill="#f8fafc" stroke="#94a3b8" stroke-width="3"/>
+  <path d="M108 154h384v92H108z" fill="#cbd5e1"/>
+  <circle cx="180" cy="390" r="58" fill="#94a3b8"/>
+  <circle cx="300" cy="390" r="58" fill="#94a3b8"/>
+  <circle cx="420" cy="390" r="58" fill="#94a3b8"/>
+  <rect x="134" y="568" width="332" height="18" rx="9" fill="#cbd5e1"/>
+  <rect x="168" y="612" width="264" height="18" rx="9" fill="#cbd5e1"/>
+  <text x="300" y="760" text-anchor="middle" font-family="Arial, sans-serif" font-size="42" font-weight="700" fill="#334155">{$escapedTitle}</text>
+</svg>
+SVG;
     }
 }
