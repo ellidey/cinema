@@ -11,6 +11,8 @@ services:
   backend:
     build:
       context: ./backend
+    volumes:
+      - ./backend/storage/app/public:/var/www/html/storage/app/public
     environment:
       APP_NAME: Cinema
       APP_ENV: local
