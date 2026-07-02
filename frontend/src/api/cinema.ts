@@ -97,3 +97,11 @@ export async function createReservedSeat(payload: { seat_id: number; showtime_id
 
   return response.data.data
 }
+
+export async function payReservedSeat(reservedSeatId: number) {
+  const response = await httpClient.patch<ApiResource<ReservedSeat>>(
+    `/reserved-seats/${reservedSeatId}/pay`,
+  )
+
+  return response.data.data
+}

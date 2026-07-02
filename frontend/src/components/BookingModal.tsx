@@ -6,7 +6,7 @@ type BookingModalProps = {
   isSubmitting: boolean
   error: string | null
   onClose: () => void
-  onSubmit: (payload: { name: string; email: string }) => void
+  onSubmit: () => void
 }
 
 export function BookingModal({ seat, isSubmitting, error, onClose, onSubmit }: BookingModalProps) {
@@ -15,7 +15,7 @@ export function BookingModal({ seat, isSubmitting, error, onClose, onSubmit }: B
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    onSubmit({ name, email })
+    onSubmit()
   }
 
   return (
@@ -27,7 +27,7 @@ export function BookingModal({ seat, isSubmitting, error, onClose, onSubmit }: B
               <i className="ri-armchair-line" aria-hidden="true" />
               Место {seat.name}
             </p>
-            <h2 id="booking-title">Бронирование</h2>
+            <h2 id="booking-title">Оплатить</h2>
           </div>
           <button className="icon-button" type="button" onClick={onClose} aria-label="Закрыть">
             <i className="ri-close-line" aria-hidden="true" />
@@ -73,7 +73,7 @@ export function BookingModal({ seat, isSubmitting, error, onClose, onSubmit }: B
             </button>
             <button className="button" type="submit" disabled={isSubmitting}>
               <i className="ri-ticket-2-line" aria-hidden="true" />
-              {isSubmitting ? 'Бронируем...' : 'Забронировать'}
+              {isSubmitting ? 'Оплачиваем...' : 'Оплатить'}
             </button>
           </div>
         </form>

@@ -85,6 +85,12 @@
   background: var(--color-border);
 }
 
+@media (max-width: 560px) {
+  .booking-modal__summary {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
 .booking-modal__summary div {
   padding: 14px;
   background: var(--color-background);

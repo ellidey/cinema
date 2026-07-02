@@ -5,6 +5,7 @@ import {
   getReservedSeats,
   getSeats,
   getShowtime,
+  payReservedSeat,
   type ReservedSeat,
   type Seat,
   type Showtime,
@@ -18,7 +19,8 @@ export function ShowtimePage() {
   const [showtime, setShowtime] = useState<Showtime | null>(null)
   const [seats, setSeats] = useState<Seat[]>([])
   const [reservedSeats, setReservedSeats] = useState<ReservedSeat[]>([])
-  const [selectedSeat, setSelectedSeat] = useState<Seat | null>(null)
+  const [selectedReservation, setSelectedReservation] = useState<ReservedSeat | null>(null)
+  const [reservingSeatId, setReservingSeatId] = useState<number | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -54,24 +56,61 @@ export function ShowtimePage() {
     }, {})
   }, [seats])
 
-  function handleBookingSubmit() {
-    if (!selectedSeat || !showtime) {
+  function upsertReservedSeat(reservedSeat: ReservedSeat) {
+    setReservedSeats((currentReservedSeats) => {
+      const exists = currentReservedSeats.some((currentReservedSeat) => {
+        return currentReservedSeat.id === reservedSeat.id
+      })
+
+      if (!exists) {
+        return [...currentReservedSeats, reservedSeat]
+      }
+
+      return currentReservedSeats.map((currentReservedSeat) => {
+        return currentReservedSeat.id === reservedSeat.id ? reservedSeat : currentReservedSeat
+      })
+    })
+  }
+
+  function handleSeatClick(seat: Seat) {
+    if (!showtime) {
+      return
+    }
+
+    setReservingSeatId(seat.id)
+    setError(null)
+
+    createReservedSeat({
+      seat_id: seat.id,
+      showtime_id: showtime.id,
+    })
+      .then((reservedSeat) => {
+        upsertReservedSeat(reservedSeat)
+        setSelectedReservation(reservedSeat)
+      })
+      .catch(() => {
+        setError('Место уже занято')
+      })
+      .finally(() => {
+        setReservingSeatId(null)
+      })
+  }
+
+  function handlePaymentSubmit() {
+    if (!selectedReservation) {
       return
     }
 
     setIsSubmitting(true)
     setError(null)
 
-    createReservedSeat({
-      seat_id: selectedSeat.id,
-      showtime_id: showtime.id,
-    })
+    payReservedSeat(selectedReservation.id)
       .then((reservedSeat) => {
-        setReservedSeats((currentReservedSeats) => [...currentReservedSeats, reservedSeat])
-        setSelectedSeat(null)
+        upsertReservedSeat(reservedSeat)
+        setSelectedReservation(null)
       })
       .catch(() => {
-        setError('Место уже занято')
+        setError('Не удалось оплатить место')
       })
       .finally(() => {
         setIsSubmitting(false)
@@ -127,11 +166,11 @@ export function ShowtimePage() {
                       className={`seat ${statusClass}`}
                       type="button"
                       key={seat.id}
-                      disabled={isReserved}
-                      onClick={() => setSelectedSeat(seat)}
+                      disabled={isReserved || reservingSeatId !== null}
+                      onClick={() => handleSeatClick(seat)}
                     >
                       <span>{seat.number}</span>
-                      <small>{seat.price} ₽</small>
+                      <small>{reservingSeatId === seat.id ? '...' : `${seat.price} ₽`}</small>
                     </button>
                   )
                 })}
@@ -141,16 +180,16 @@ export function ShowtimePage() {
         </div>
       </section>
 
-      {selectedSeat ? (
+      {selectedReservation?.seat ? (
         <BookingModal
-          seat={selectedSeat}
+          seat={selectedReservation.seat}
           isSubmitting={isSubmitting}
           error={error}
           onClose={() => {
-            setSelectedSeat(null)
+            setSelectedReservation(null)
             setError(null)
           }}
-          onSubmit={handleBookingSubmit}
+          onSubmit={handlePaymentSubmit}
         />
       ) : null}
     </Page>
