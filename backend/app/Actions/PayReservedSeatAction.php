@@ -3,15 +3,27 @@
 namespace App\Actions;
 
 use App\Models\ReservedSeat;
+use Illuminate\Support\Facades\DB;
+use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 
 class PayReservedSeatAction
 {
     public function execute(ReservedSeat $reservedSeat): ReservedSeat
     {
-        $reservedSeat->update([
-            'status' => ReservedSeat::STATUS_PAID,
-        ]);
+        return DB::transaction(function () use ($reservedSeat): ReservedSeat {
+            $lockedReservedSeat = ReservedSeat::query()
+                ->lockForUpdate()
+                ->findOrFail($reservedSeat->id);
 
-        return $reservedSeat->refresh();
+            if ($lockedReservedSeat->status === ReservedSeat::STATUS_PAID) {
+                throw new ConflictHttpException('Reservation is already paid.');
+            }
+
+            $lockedReservedSeat->update([
+                'status' => ReservedSeat::STATUS_PAID,
+            ]);
+
+            return $lockedReservedSeat->refresh();
+        });
     }
 }

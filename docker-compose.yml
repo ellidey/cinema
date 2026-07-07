@@ -30,6 +30,33 @@ services:
       CACHE_STORE: array
       QUEUE_CONNECTION: sync
       SESSION_DRIVER: array
+      UNPAID_RESERVATION_TTL_SECONDS: 300
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  scheduler:
+    build:
+      context: ./backend
+    command: php artisan schedule:work
+    volumes:
+      - ./backend/storage/app/public:/var/www/html/storage/app/public
+    environment:
+      APP_NAME: Cinema
+      APP_ENV: local
+      APP_KEY: base64:+cnSaORWtM2fuS+si1GhelM2xk4htr8E0El8bSDOGYI=
+      APP_DEBUG: "true"
+      APP_URL: http://localhost
+      DB_CONNECTION: pgsql
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_DATABASE: cinema
+      DB_USERNAME: cinema
+      DB_PASSWORD: cinema
+      CACHE_STORE: array
+      QUEUE_CONNECTION: sync
+      SESSION_DRIVER: array
+      UNPAID_RESERVATION_TTL_SECONDS: 300
     depends_on:
       postgres:
         condition: service_healthy

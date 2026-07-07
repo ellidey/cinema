@@ -94,7 +94,11 @@ DB_PORT=5432
 DB_DATABASE=cinema
 DB_USERNAME=cinema
 DB_PASSWORD=cinema
+UNPAID_RESERVATION_TTL_SECONDS=300
 ```
+
+`UNPAID_RESERVATION_TTL_SECONDS` задает время жизни неоплаченной брони в
+секундах. Значение `300` соответствует 5 минутам.
 
 Для подключения к базе с хост-машины используйте:
 
@@ -131,7 +135,12 @@ docker compose exec backend php artisan db:seed
 docker compose exec backend php artisan migrate:fresh --seed
 docker compose exec backend php artisan test
 docker compose exec backend php artisan route:list
+docker compose exec backend php artisan cinema:delete-expired-unpaid-reservations
 ```
+
+Очистка неоплаченных броней выполняется Laravel Scheduler. В Docker Compose для
+этого есть отдельный сервис `scheduler`, который запускает `php artisan
+schedule:work`.
 
 Проверочный API:
 
